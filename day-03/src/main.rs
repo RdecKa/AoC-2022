@@ -22,7 +22,7 @@ fn star1(input: &str) -> i32 {
 
 fn star2(input: &str) -> i32 {
     let parsed_input = parse_input_star2(input);
-    get_sum_of_badges(parsed_input)
+    get_sum_of_badges(&parsed_input)
 }
 
 fn parse_input_star1(input: &str) -> Vec<(&str, &str)> {
@@ -39,49 +39,41 @@ fn parse_input_star2(input: &str) -> Vec<&str> {
     input.lines().collect()
 }
 
-fn find_common_item(compartments: (&str, &str)) -> char {
-    let compartment0 = HashSet::<_>::from_iter(compartments.0.chars());
-    for item in compartments.1.chars() {
-        if compartment0.contains(&item) {
-            return item;
-        }
-    }
-    panic!("No common item found");
+fn find_common_item((compartment0, compartment1): (&str, &str)) -> char {
+    let c0: HashSet<char> = compartment0.chars().collect();
+    let c1: HashSet<char> = compartment1.chars().collect();
+    c0.intersection(&c1).copied().into_iter().next().unwrap()
 }
 
 fn get_item_priority(item: char) -> i32 {
     if 'A' <= item && item <= 'Z' {
-        return 27 + (item as i32) - ('A' as i32);
+        27 + (item as i32) - ('A' as i32)
+    } else {
+        1 + (item as i32) - ('a' as i32)
     }
-    1 + (item as i32) - ('a' as i32)
 }
 
 fn get_sum_of_priorities(input: Vec<(&str, &str)>) -> i32 {
     input
         .iter()
-        .map(|rucksack| get_item_priority(find_common_item(*rucksack)))
+        .map(|&rucksack| get_item_priority(find_common_item(rucksack)))
         .sum()
 }
 
-fn get_badge(rucksacks: Vec<&str>) -> char {
-    let intersection =
-        rucksacks
-            .iter()
-            .skip(1)
-            .fold(HashSet::from_iter(rucksacks[0].chars()), |acc, rucksack| {
-                let rucksack_set: HashSet<char> = rucksack.chars().collect();
-                acc.intersection(&rucksack_set).copied().collect()
-            });
+fn get_badge(rucksacks: &[&str]) -> char {
+    let intersection: HashSet<char> = rucksacks
+        .iter()
+        .map(|&rucksack| HashSet::from_iter(rucksack.chars()))
+        .reduce(|a, b| a.intersection(&b).copied().collect())
+        .unwrap();
     intersection.into_iter().next().unwrap()
 }
 
-fn get_sum_of_badges(input: Vec<&str>) -> i32 {
-    let mut sum = 0;
-    for i in (0..input.len()).step_by(3) {
-        let badge = get_badge(input[i..i + 3].to_vec());
-        sum += get_item_priority(badge);
-    }
-    sum
+fn get_sum_of_badges(input: &[&str]) -> i32 {
+    input
+        .chunks(3)
+        .map(|chunk| get_item_priority(get_badge(chunk)))
+        .sum()
 }
 
 #[cfg(test)]
