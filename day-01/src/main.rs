@@ -18,7 +18,7 @@ fn star1(input: &str) -> i32 {
     numbers.sort();
 
     // There is definitely at least one elf in the input
-    numbers[numbers.len() - 1]
+    *numbers.last().unwrap()
 }
 
 fn star2(input: &str) -> i32 {
