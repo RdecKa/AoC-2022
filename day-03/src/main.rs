@@ -16,15 +16,16 @@ fn main() {
 }
 
 fn star1(input: &str) -> i32 {
-    let parsed_input = parse_input(input);
+    let parsed_input = parse_input_star1(input);
     get_sum_of_priorities(parsed_input)
 }
 
 fn star2(input: &str) -> i32 {
-    0
+    let parsed_input = parse_input_star2(input);
+    get_sum_of_badges(parsed_input)
 }
 
-fn parse_input(input: &str) -> Vec<(&str, &str)> {
+fn parse_input_star1(input: &str) -> Vec<(&str, &str)> {
     input
         .lines()
         .map(|line| {
@@ -32,6 +33,10 @@ fn parse_input(input: &str) -> Vec<(&str, &str)> {
             (&line[..num_items / 2], &line[num_items / 2..])
         })
         .collect()
+}
+
+fn parse_input_star2(input: &str) -> Vec<&str> {
+    input.lines().collect()
 }
 
 fn find_common_item(compartments: (&str, &str)) -> char {
@@ -58,6 +63,27 @@ fn get_sum_of_priorities(input: Vec<(&str, &str)>) -> i32 {
         .sum()
 }
 
+fn get_badge(rucksacks: Vec<&str>) -> char {
+    let intersection =
+        rucksacks
+            .iter()
+            .skip(1)
+            .fold(HashSet::from_iter(rucksacks[0].chars()), |acc, rucksack| {
+                let rucksack_set: HashSet<char> = rucksack.chars().collect();
+                acc.intersection(&rucksack_set).copied().collect()
+            });
+    intersection.into_iter().next().unwrap()
+}
+
+fn get_sum_of_badges(input: Vec<&str>) -> i32 {
+    let mut sum = 0;
+    for i in (0..input.len()).step_by(3) {
+        let badge = get_badge(input[i..i + 3].to_vec());
+        sum += get_item_priority(badge);
+    }
+    sum
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -77,12 +103,12 @@ mod tests {
     #[test]
     fn test_star2() {
         let result = star2(TEST_INPUT);
-        assert_eq!(result, 0);
+        assert_eq!(result, 70);
     }
 
     #[test]
     fn full_star2() {
         let result = star2(INPUT);
-        assert_eq!(result, 0);
+        assert_eq!(result, 2805);
     }
 }
