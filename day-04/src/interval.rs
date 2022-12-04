@@ -19,4 +19,8 @@ impl Interval {
     pub fn contains(&self, other: &Interval) -> bool {
         self.start <= other.start && self.end >= other.end
     }
+
+    pub fn overlaps_with(&self, other: &Interval) -> bool {
+        !(self.start > other.end || self.end < other.start)
+    }
 }

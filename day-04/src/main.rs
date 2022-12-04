@@ -26,7 +26,10 @@ fn star1(input: &str) -> i32 {
 
 fn star2(input: &str) -> i32 {
     let parsed_input = parse_input(input);
-    parsed_input.len() as i32
+    parsed_input
+        .iter()
+        .map(|(first, second)| (first.overlaps_with(second)) as i32)
+        .sum()
 }
 
 fn parse_input(input: &str) -> Vec<(Interval, Interval)> {
@@ -60,12 +63,12 @@ mod tests {
     #[test]
     fn test_star2() {
         let result = star2(TEST_INPUT);
-        assert_eq!(result, 0);
+        assert_eq!(result, 4);
     }
 
     #[test]
     fn full_star2() {
         let result = star2(INPUT);
-        assert_eq!(result, 0);
+        assert_eq!(result, 841);
     }
 }
