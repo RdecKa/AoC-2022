@@ -16,20 +16,18 @@ fn main() {
     println!("Star 2: {}", result);
 }
 
-fn star1(input: &str) -> i32 {
-    let parsed_input = parse_input(input);
-    parsed_input
+fn star1(input: &str) -> usize {
+    parse_input(input)
         .iter()
-        .map(|(first, second)| (first.contains(second) || second.contains(first)) as i32)
-        .sum()
+        .filter(|(first, second)| first.contains(second) || second.contains(first))
+        .count()
 }
 
-fn star2(input: &str) -> i32 {
-    let parsed_input = parse_input(input);
-    parsed_input
+fn star2(input: &str) -> usize {
+    parse_input(input)
         .iter()
-        .map(|(first, second)| (first.overlaps_with(second)) as i32)
-        .sum()
+        .filter(|(first, second)| first.overlaps_with(second))
+        .count()
 }
 
 fn parse_input(input: &str) -> Vec<(Interval, Interval)> {
@@ -37,8 +35,8 @@ fn parse_input(input: &str) -> Vec<(Interval, Interval)> {
         .lines()
         .map(|line| {
             let mut split = line.split(",").into_iter();
-            let a = Interval::from(split.next().unwrap());
-            let b = Interval::from(split.next().unwrap());
+            let a: Interval = split.next().unwrap().parse().unwrap();
+            let b: Interval = split.next().unwrap().parse().unwrap();
             (a, b)
         })
         .collect()

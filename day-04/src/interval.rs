@@ -1,3 +1,5 @@
+use std::{num::ParseIntError, str::FromStr};
+
 #[derive(Debug)]
 pub struct Interval {
     start: i32,
@@ -5,13 +7,15 @@ pub struct Interval {
 }
 
 // Input is in format "A-B"
-impl From<&str> for Interval {
-    fn from(item: &str) -> Self {
-        let mut split = item.split("-").into_iter();
-        Interval {
-            start: (split.next().unwrap().parse().unwrap()),
-            end: (split.next().unwrap().parse().unwrap()),
-        }
+impl FromStr for Interval {
+    type Err = ParseIntError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let mut split = s.split("-");
+        Ok(Interval {
+            start: split.next().unwrap().parse()?,
+            end: split.next().unwrap().parse()?,
+        })
     }
 }
 
