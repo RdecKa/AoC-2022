@@ -21,15 +21,16 @@ fn main() {
 fn star1(input: &str) -> String {
     let (mut stacks, moves) = parse_input(input);
     execute_plan(&mut stacks, &moves);
-    String::from_iter(get_top_crates(&stacks))
+    get_top_crates(&stacks)
 }
 
-fn star2(input: &str) -> i32 {
-    let (stacks, moves) = parse_input(input);
-    stacks.len() as i32
+fn star2(input: &str) -> String {
+    let (mut stacks, moves) = parse_input(input);
+    execute_plan_9001(&mut stacks, &moves);
+    get_top_crates(&stacks)
 }
 
-fn parse_input(input: &str) -> (Vec<Stack>, Vec<(i32, usize, usize)>) {
+fn parse_input(input: &str) -> (Vec<Stack>, Vec<(usize, usize, usize)>) {
     let mut split = input.split("\n\n");
     let stacks_str = split.next().unwrap();
     let moves_str = split.next().unwrap();
@@ -51,44 +52,56 @@ fn parse_stacks_from_str(stacks_str: &str) -> Vec<Stack> {
 }
 
 fn parse_stack_row(row: &str, stacks: &mut [Stack]) {
-    let chars = row.chars().collect::<Vec<char>>();
+    let chars: Vec<char> = row.chars().collect();
     let columns = chars.chunks(4);
-    for (idx, item) in columns.enumerate() {
+    columns.enumerate().for_each(|(idx, item)| {
         if item[1] != ' ' {
             stacks[idx].push(item[1]);
         }
-    }
+    })
 }
 
-fn parse_moves_from_str(moves_str: &str) -> Vec<(i32, usize, usize)> {
+fn parse_moves_from_str(moves_str: &str) -> Vec<(usize, usize, usize)> {
     moves_str
         .lines()
         .map(|line| {
             let mut split = line.split_whitespace();
             split.next(); // "move"
-            let count: i32 = split.next().unwrap().parse().unwrap();
+            let count = split.next().unwrap().parse().unwrap();
             split.next(); // "from"
-            let source: usize = split.next().unwrap().parse().unwrap();
+            let source = split.next().unwrap().parse().unwrap();
             split.next(); // "to"
-            let destination: usize = split.next().unwrap().parse().unwrap();
+            let destination = split.next().unwrap().parse().unwrap();
             (count, source, destination)
         })
         .collect()
 }
 
-fn execute_plan(stacks: &mut [Stack], moves: &[(i32, usize, usize)]) {
+fn execute_plan(stacks: &mut [Stack], moves: &[(usize, usize, usize)]) {
     moves.iter().for_each(|m| execute_move(stacks, *m))
 }
 
-fn execute_move(stacks: &mut [Stack], (count, source, destination): (i32, usize, usize)) {
+fn execute_move(stacks: &mut [Stack], (count, source, destination): (usize, usize, usize)) {
     for _ in 0..count {
-        let moved_item = &stacks[source - 1].pop().unwrap();
-        stacks[destination - 1].push(*moved_item);
+        let moved_item = stacks[source - 1].pop().unwrap();
+        stacks[destination - 1].push(moved_item);
     }
 }
 
-fn get_top_crates(stacks: &[Stack]) -> Vec<char> {
-    stacks.iter().map(|stack| stack.peek().unwrap()).collect()
+fn execute_plan_9001(stacks: &mut [Stack], moves: &[(usize, usize, usize)]) {
+    moves.iter().for_each(|m| execute_move_9001(stacks, *m))
+}
+
+fn execute_move_9001(stacks: &mut [Stack], (count, source, destination): (usize, usize, usize)) {
+    let moved_items = stacks[source - 1].pop_n(count);
+    stacks[destination - 1].push_n(moved_items);
+}
+
+fn get_top_crates(stacks: &[Stack]) -> String {
+    stacks
+        .iter()
+        .map(|stack| stack.peek().unwrap())
+        .collect::<String>()
 }
 
 #[cfg(test)]
@@ -110,12 +123,12 @@ mod tests {
     #[test]
     fn test_star2() {
         let result = star2(TEST_INPUT);
-        assert_eq!(result, 0);
+        assert_eq!(result, "MCD");
     }
 
     #[test]
     fn full_star2() {
         let result = star2(INPUT);
-        assert_eq!(result, 0);
+        assert_eq!(result, "BLSGJSDTS");
     }
 }
