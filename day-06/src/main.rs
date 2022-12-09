@@ -61,24 +61,13 @@ fn get_marker_location(signal: &[char], marker_length: usize) -> Option<usize> {
 }
 
 fn add_single_char_to_recent_chars(c: char, recent_chars: &mut HashMap<char, usize>) {
-    recent_chars.insert(
-        c,
-        match recent_chars.get(&c) {
-            Some(c) => c + 1,
-            None => 1,
-        },
-    );
+    *recent_chars.entry(c).or_insert(0) += 1;
 }
 
 fn remove_single_char_from_recent_chars(c: char, recent_chars: &mut HashMap<char, usize>) {
-    let count = recent_chars.get(&c).unwrap();
-    match count {
-        1 => {
-            recent_chars.remove(&c);
-        }
-        _ => {
-            recent_chars.insert(c, count - 1);
-        }
+    recent_chars.entry(c).and_modify(|count| *count -= 1);
+    if recent_chars[&c] == 0 {
+        recent_chars.remove(&c);
     }
 }
 
