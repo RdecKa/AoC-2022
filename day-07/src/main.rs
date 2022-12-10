@@ -27,8 +27,9 @@ fn star1(input: &str) -> i32 {
 }
 
 fn star2(input: &str) -> i32 {
-    let parsed_input = parse_input(input);
-    0
+    let mut file_system = parse_input(input);
+    file_system.calculate_node_sizes("/");
+    file_system.select_dir_to_free_space()
 }
 
 fn parse_input(input: &str) -> Tree {
@@ -107,12 +108,18 @@ mod tests {
     #[test]
     fn test_star2() {
         let result = star2(TEST_INPUT);
-        assert_eq!(result, 0);
+        assert_eq!(result, 24933642);
+    }
+
+    #[test]
+    fn test2_star2() {
+        let result = star2(TEST_INPUT_2);
+        assert_eq!(result, 24933642);
     }
 
     #[test]
     fn full_star2() {
         let result = star2(INPUT);
-        assert_eq!(result, 0);
+        assert_eq!(result, 6296435);
     }
 }

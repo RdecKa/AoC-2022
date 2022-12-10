@@ -94,6 +94,25 @@ impl Tree {
             })
             .sum()
     }
+
+    // Solution for star 2
+    pub fn select_dir_to_free_space(&self) -> i32 {
+        let total_space = 70000000;
+        let currently_free =
+            total_space - self.get_node_from_path("/").unwrap().get_size().unwrap();
+        let required_space = 30000000;
+        let missing_space = required_space - currently_free;
+
+        let mut candidates: Vec<i32> = self
+            .all_nodes
+            .values()
+            .filter(|&node| matches!(node, Node::Directory(_)))
+            .map(|node| node.get_size().unwrap())
+            .filter(|size| *size >= missing_space)
+            .collect();
+        candidates.sort();
+        *candidates.iter().next().unwrap()
+    }
 }
 
 /* Node **********************************************************************/
@@ -112,6 +131,19 @@ impl Name for Node {
         match &self {
             Node::Directory(dir) => &dir.name,
             Node::File(file) => &file.name,
+        }
+    }
+}
+
+pub trait Size {
+    fn get_size(&self) -> Option<i32>;
+}
+
+impl Size for Node {
+    fn get_size(&self) -> Option<i32> {
+        match &self {
+            Node::Directory(dir) => dir.size,
+            Node::File(file) => Some(file.size),
         }
     }
 }
